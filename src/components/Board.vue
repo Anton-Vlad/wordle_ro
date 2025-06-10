@@ -1,9 +1,16 @@
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import WORDS from '../words'
 
-const board = ref(Array(6).fill().map(() => Array(5).fill("")));
-const boardStatuses = ref(Array(6).fill().map(() => Array(5).fill("")));
+interface Game {
+  status: string;
+  letters: number;
+  target: string;
+  tries: number;
+}
+
+const board = ref(Array(6).fill("").map(() => Array(5).fill("")));
+const boardStatuses = ref(Array(6).fill("").map(() => Array(5).fill("")));
 
 const currentWordRow = ref(0);
 const currentLetterCol = ref(0);
@@ -11,7 +18,7 @@ const target = ref(getRandomWord());
 
 const outputMessage = ref('');
 const tries = ref(0);
-const games = ref([]);
+const games = ref<Game[]>([]);
 const blockInputs = ref(false)
 
 const wordIsComplete = computed(() => {
@@ -29,7 +36,7 @@ const lettersFound = computed(() => {
 })
 
 
-const isValidKey = (key, keyCode) => {
+const isValidKey = (key: string, keyCode: number) => {
   // Check for Enter (13), Space (32), Escape (27), Backspace (8)
   if ([8, 13, 32, 27].includes(keyCode)) {
     return true
@@ -38,7 +45,7 @@ const isValidKey = (key, keyCode) => {
   return isLetter(key)
 }
 
-function saveResult(status) {
+function saveResult(status: string) {
   blockInputs.value = true;
   games.value.push({
     status: status,
@@ -50,8 +57,8 @@ function saveResult(status) {
 }
 
 function resetBoard() {
-  board.value = Array(6).fill().map(() => Array(5).fill(""));
-  boardStatuses.value = Array(6).fill().map(() => Array(5).fill(""));
+  board.value = Array(6).fill("").map(() => Array(5).fill(""));
+  boardStatuses.value = Array(6).fill("").map(() => Array(5).fill(""));
 
   currentWordRow.value = 0;
   currentLetterCol.value = 0;
@@ -69,19 +76,19 @@ function getRandomWord() {
   return WORDS[randomIndex]
 }
 
-function isSubmitKey(keyCode) {
+function isSubmitKey(keyCode: number) {
   if ([13, 32].includes(keyCode)) {
     return true;
   }
   return false;
 }
-function isDeleteKey(keyCode) {
+function isDeleteKey(keyCode: number) {
   if ([8].includes(keyCode)) {
     return true;
   }
   return false;
 }
-function isLetter(key) {
+function isLetter(key: string) {
   if (key.length === 1 && /^[a-z]$/i.test(key)) {
     return true;
   }
@@ -104,7 +111,7 @@ function validateWordInput() {
   }
 }
 
-const handleKeydown = (event) => {
+const handleKeydown = (event: KeyboardEvent) => {
   if (blockInputs.value) {
     return;
   }

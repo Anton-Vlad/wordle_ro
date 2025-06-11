@@ -25,7 +25,7 @@ a:hover {
 body {
   margin: 0;
   display: flex;
-  place-items: center;
+  flex-direction: column;
   min-width: 320px;
   min-height: 100vh;
 }
@@ -63,6 +63,13 @@ button:focus-visible {
   margin: 0 auto;
   padding: 2rem;
   text-align: center;
+}
+
+#app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px;
 }
 
 @media (prefers-color-scheme: light) {

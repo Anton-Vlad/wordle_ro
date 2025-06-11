@@ -1,13 +1,10 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import WORDS from '../words'
-
-interface Game {
-  status: string;
-  letters: number;
-  target: string;
-  tries: number;
-}
+import Rules from './Rules.vue'
+import Score from './Score.vue'
+import Header from './Header.vue'
+import type { Game } from '../types';
 
 const board = ref(Array(6).fill("").map(() => Array(5).fill("")));
 const boardStatuses = ref(Array(6).fill("").map(() => Array(5).fill("")));
@@ -15,6 +12,9 @@ const boardStatuses = ref(Array(6).fill("").map(() => Array(5).fill("")));
 const currentWordRow = ref(0);
 const currentLetterCol = ref(0);
 const target = ref(getRandomWord());
+
+const showRules = ref(false);
+const showScore = ref(false);
 
 const outputMessage = ref('');
 const tries = ref(0);
@@ -38,7 +38,7 @@ const lettersFound = computed(() => {
 
 const isValidKey = (key: string, keyCode: number) => {
   // Check for Enter (13), Space (32), Escape (27), Backspace (8)
-  if ([8, 13, 32, 27].includes(keyCode)) {
+  if ([8, 13, 32, 27, 49].includes(keyCode)) {
     return true
   }
 
@@ -123,6 +123,21 @@ const handleKeydown = (event: KeyboardEvent) => {
 
   // Check if it's a valid key we want to listen for
   if (isValidKey(key, keyCode)) {
+    if (keyCode === 27) {
+      showScore.value = false;
+      setTimeout(() => {
+        showRules.value = !showRules.value;
+      }, 100)
+      return;
+    }
+    if (keyCode === 49) { // number 1 from the keyboard numerical
+      showRules.value = false;
+      setTimeout(() => {
+        showScore.value = !showScore.value;
+      }, 100)
+      return;
+    }
+
     if (isDeleteKey(keyCode)) {
       if (currentLetterCol.value > 0) {
         currentLetterCol.value -= 1;
@@ -138,8 +153,6 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
 
     if (isSubmitKey(keyCode) && wordIsComplete.value) {
-      // console.log('Submit the word:', board.value[currentWordRow.value].join(""))
-
       // check the word vs the target,  update the clases for the boardStatuses
       validateWordInput()
       tries.value += 1;
@@ -172,7 +185,6 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
 
     if (wordIsComplete.value) {
-      // console.log('COmpleted Word,. Please submit')
       outputMessage.value = 'Word is complet. Please submit it. (SPACE or ENTER key)'
     }
   }
@@ -187,11 +199,27 @@ onUnmounted(() => {
   document.removeEventListener('keydown', handleKeydown)
 })
 
+function onCloseRules() {
+  showRules.value = false;
+}
+
+function onCloseScore() {
+  showScore.value = false;
+}
+
+function onOpenRules() {
+  showRules.value = true;
+}
+
+function onOpenStats() {
+  showScore.value = true;
+}
 </script>
 
 <template>
-  <h1 style="margin-bottom: 0">Wordle Game</h1>
-  <p style="margin: 12px auto 24px;">for romanian words</p>
+  <Header @openRules="onOpenRules" @openStats="onOpenStats" />
+  <Rules v-if="!showScore" :open="showRules" @close="onCloseRules" />
+  <Score v-if="!showRules" :open="showScore" :games="games" @close="onCloseScore" />
 
   <div class="panel">
     <p>Tries: {{ tries }}</p>
@@ -207,33 +235,9 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <p class="display">
+  <!-- <p class="display">
     {{ outputMessage }}
-  </p>
-
-  <table class="score-board">
-    <thead>
-      <tr>
-        <th>W/L</th>
-        <th>Target</th>
-        <th>Tries/Words</th>
-      </tr>
-    </thead>
-    <tbody class=" heading">
-      <tr v-for="game in games" :key="game.target">
-        <td :style="{color: (game.status === 'W' ? 'greenyellow' : 'red')}">
-          {{ game.status }}
-        </td>
-        <td>{{ game.target }}</td>
-        <td v-if="game.status === 'W'">
-          {{ game.tries }} tries
-        </td>
-        <td v-else>
-          {{ game.letters }} / 5
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  </p> -->
 
 </template>
 
@@ -312,15 +316,4 @@ onUnmounted(() => {
   }
 }
 
-
-.score-board {
-  width: 336px;
-}
-.score-board thead tr th {
-  border-bottom: 1px solid aliceblue;
-}
-.score-board tbody tr td:last-child,
-.score-board thead tr th:last-child {
-  text-align: right;
-}
 </style>

@@ -7,7 +7,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: 'close'): void;
+  (e: "close"): void;
 }>();
 
 function showDialog() {
@@ -19,7 +19,6 @@ function closeDialog() {
 }
 
 function handleClose(event) {
-  console.log("Try to emit from MOdal", event.target);
   emit("close");
 }
 
@@ -27,10 +26,8 @@ watch(
   () => props.open,
   (newVal, oldVal) => {
     if (newVal) {
-      console.log("PROPS SHOW", dialog.value);
       showDialog();
     } else {
-      console.log("PROPS CLOSE", dialog.value);
       closeDialog();
     }
   }
@@ -39,7 +36,7 @@ watch(
 
 <template>
   <teleport to="body">
-    <dialog class="my-dialog" ref="dialog" @close="handleClose" @cancel.prevent >
+    <dialog class="my-dialog" ref="dialog" @close="handleClose" @cancel.prevent>
       <div class="dialog-wrapper" @click.self="handleClose">
         <div class="content">
           <slot />

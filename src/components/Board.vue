@@ -1,13 +1,22 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
-import WORDS from '../words'
-import Rules from './Rules.vue'
-import Score from './Score.vue'
-import Header from './Header.vue'
-import type { Game } from '../types';
+import { ref, computed, onMounted, onUnmounted } from "vue";
+import WORDS from "../words";
+import Rules from "./Rules.vue";
+import Score from "./Score.vue";
+import Header from "./Header.vue";
+import Keyboard from "./Keyboard.vue";
+import type { Game } from "../types";
 
-const board = ref(Array(6).fill("").map(() => Array(5).fill("")));
-const boardStatuses = ref(Array(6).fill("").map(() => Array(5).fill("")));
+const board = ref(
+  Array(6)
+    .fill("")
+    .map(() => Array(5).fill(""))
+);
+const boardStatuses = ref(
+  Array(6)
+    .fill("")
+    .map(() => Array(5).fill(""))
+);
 
 const currentWordRow = ref(0);
 const currentLetterCol = ref(0);
@@ -16,34 +25,51 @@ const target = ref(getRandomWord());
 const showRules = ref(false);
 const showScore = ref(false);
 
-const outputMessage = ref('');
+const outputMessage = ref("");
 const tries = ref(0);
 const games = ref<Game[]>([]);
-const blockInputs = ref(false)
+const blockInputs = ref(false);
+
+const wrongLettersUsed = ref<string[]>([]);
+const includedLettersUsed = ref<string[]>([]);
+const goodLettersUsed = ref<string[]>([]);
 
 const wordIsComplete = computed(() => {
-  return board.value[currentWordRow.value].every(l => l != '')
-})
+  return board.value[currentWordRow.value].every((l) => l != "");
+});
 const wordIsFound = computed(() => {
-  return boardStatuses.value[currentWordRow.value].every(s => s === 'goodLetter')
-})
+  return boardStatuses.value[currentWordRow.value].every(
+    (s) => s === "goodLetter"
+  );
+});
 const lettersFound = computed(() => {
   let found = [];
   for (let r = 0; r < boardStatuses.value.length; r++) {
-    found.push(boardStatuses.value[r].filter(l => l === 'goodLetter').length)
+    found.push(boardStatuses.value[r].filter((l) => l === "goodLetter").length);
   }
   return Math.max(...found);
-})
+});
 
+function getLettersUsedByType(type: string): string[] {
+  let letters = [];
+  for (let r = 0; r < boardStatuses.value.length; r++) {
+    for (let c = 0; c < boardStatuses.value[r].length; c++) {
+      if (boardStatuses.value[r][c] === type) {
+        letters.push(board.value[r][c]);
+      }
+    }
+  }
+  return letters;
+}
 
 const isValidKey = (key: string, keyCode: number) => {
   // Check for Enter (13), Space (32), Escape (27), Backspace (8)
   if ([8, 13, 32, 27, 49].includes(keyCode)) {
-    return true
+    return true;
   }
 
-  return isLetter(key)
-}
+  return isLetter(key);
+};
 
 function saveResult(status: string) {
   blockInputs.value = true;
@@ -51,29 +77,33 @@ function saveResult(status: string) {
     status: status,
     target: target.value,
     tries: tries.value,
-    letters: lettersFound.value
-  })
-  outputMessage.value = 'You ' + (status === 'W' ? 'Win' : 'Lose');
+    letters: lettersFound.value,
+  });
+  outputMessage.value = "You " + (status === "W" ? "Win" : "Lose");
 }
 
 function resetBoard() {
-  board.value = Array(6).fill("").map(() => Array(5).fill(""));
-  boardStatuses.value = Array(6).fill("").map(() => Array(5).fill(""));
+  board.value = Array(6)
+    .fill("")
+    .map(() => Array(5).fill(""));
+  boardStatuses.value = Array(6)
+    .fill("")
+    .map(() => Array(5).fill(""));
 
   currentWordRow.value = 0;
   currentLetterCol.value = 0;
   target.value = getRandomWord();
 
-  outputMessage.value = '';
+  outputMessage.value = "";
   tries.value = 0;
   blockInputs.value = false;
 
-  console.log('NEW TARGET: ', target.value)
+  console.log("NEW TARGET: ", target.value);
 }
 
 function getRandomWord() {
   let randomIndex = Math.floor(Math.random() * (WORDS.length - 1));
-  return WORDS[randomIndex]
+  return WORDS[randomIndex];
 }
 
 function isSubmitKey(keyCode: number) {
@@ -96,30 +126,32 @@ function isLetter(key: string) {
 }
 
 function validateWordInput() {
-  const targetWordArray = target.value.split("").map(l => l.toUpperCase());
+  const targetWordArray = target.value.split("").map((l) => l.toUpperCase());
 
   for (let i = 0; i < board.value[currentWordRow.value].length; i++) {
-    let statusClass = 'wrongLetter';
+    let statusClass = "wrongLetter";
 
     if (board.value[currentWordRow.value][i] === targetWordArray[i]) {
-      statusClass = 'goodLetter';
+      statusClass = "goodLetter";
     } else if (targetWordArray.includes(board.value[currentWordRow.value][i])) {
-      statusClass = 'includedLetter'
+      statusClass = "includedLetter";
     }
 
     boardStatuses.value[currentWordRow.value][i] = statusClass;
   }
 }
 
-const handleKeydown = (event: KeyboardEvent) => {
+const handleKeydown = (
+  event: KeyboardEvent | { key: string; keyCode: number }
+) => {
   if (blockInputs.value) {
     return;
   }
 
-  const key = event.key.toLowerCase()
-  const keyCode = event.keyCode || event.which
+  const key = event.key.toLowerCase();
+  const keyCode = event.keyCode || event.which;
 
-  outputMessage.value = '';
+  outputMessage.value = "";
 
   // Check if it's a valid key we want to listen for
   if (isValidKey(key, keyCode)) {
@@ -127,14 +159,15 @@ const handleKeydown = (event: KeyboardEvent) => {
       showScore.value = false;
       setTimeout(() => {
         showRules.value = !showRules.value;
-      }, 100)
+      }, 100);
       return;
     }
-    if (keyCode === 49) { // number 1 from the keyboard numerical
+    if (keyCode === 49) {
+      // number 1 from the keyboard numerical
       showRules.value = false;
       setTimeout(() => {
         showScore.value = !showScore.value;
-      }, 100)
+      }, 100);
       return;
     }
 
@@ -142,25 +175,35 @@ const handleKeydown = (event: KeyboardEvent) => {
       if (currentLetterCol.value > 0) {
         currentLetterCol.value -= 1;
       }
-      board.value[currentWordRow.value][currentLetterCol.value] = '';
+      board.value[currentWordRow.value][currentLetterCol.value] = "";
       return;
     }
 
     if (isLetter(key) && !wordIsComplete.value) {
-      board.value[currentWordRow.value][currentLetterCol.value] = key.toUpperCase();
+      board.value[currentWordRow.value][currentLetterCol.value] =
+        key.toUpperCase();
       currentLetterCol.value += 1;
       return;
     }
 
     if (isSubmitKey(keyCode) && wordIsComplete.value) {
       // check the word vs the target,  update the clases for the boardStatuses
-      validateWordInput()
+      validateWordInput();
+
+      // updat the keyboard colors
+      wrongLettersUsed.value = [...getLettersUsedByType("wrongLetter")];
+      includedLettersUsed.value = [...getLettersUsedByType("includedLetter")];
+      goodLettersUsed.value = [...getLettersUsedByType("goodLetter")];
+      console.log("Wrong letters used: ", wrongLettersUsed.value);
+      console.log("Included letters used: ", includedLettersUsed.value);
+      console.log("Good letters used: ", goodLettersUsed.value);
+
       tries.value += 1;
 
       if (wordIsFound.value) {
-        saveResult('W')
+        saveResult("W");
         setTimeout(() => {
-          resetBoard()
+          resetBoard();
         }, 5000);
         return;
       }
@@ -169,9 +212,9 @@ const handleKeydown = (event: KeyboardEvent) => {
       currentWordRow.value += 1;
 
       if (currentWordRow.value > 5) {
-        saveResult('L')
+        saveResult("L");
         setTimeout(() => {
-          resetBoard()
+          resetBoard();
         }, 5000);
         return;
       }
@@ -180,24 +223,25 @@ const handleKeydown = (event: KeyboardEvent) => {
     }
 
     if (isSubmitKey(keyCode) && !wordIsComplete.value) {
-      outputMessage.value = 'Word is incomplet.'
+      outputMessage.value = "Word is incomplet.";
       return;
     }
 
     if (wordIsComplete.value) {
-      outputMessage.value = 'Word is complet. Please submit it. (SPACE or ENTER key)'
+      outputMessage.value =
+        "Word is complet. Please submit it. (SPACE or ENTER key)";
     }
   }
-}
+};
 
 onMounted(() => {
-  document.addEventListener('keydown', handleKeydown)
-  console.log("Target: " + target.value)
-})
+  document.addEventListener("keydown", handleKeydown);
+  console.log("Target: " + target.value);
+});
 
 onUnmounted(() => {
-  document.removeEventListener('keydown', handleKeydown)
-})
+  document.removeEventListener("keydown", handleKeydown);
+});
 
 function onCloseRules() {
   showRules.value = false;
@@ -214,31 +258,63 @@ function onOpenRules() {
 function onOpenStats() {
   showScore.value = true;
 }
+
+function handleKeybordMouse(letter: string) {
+  handleKeydown({
+    key: letter,
+    keyCode:
+      letter === "ENTER"
+        ? 13
+        : letter === "BACK"
+        ? 8
+        : letter.toLowerCase().charCodeAt(0),
+  });
+}
 </script>
 
 <template>
   <Header @openRules="onOpenRules" @openStats="onOpenStats" />
   <Rules v-if="!showScore" :open="showRules" @close="onCloseRules" />
-  <Score v-if="!showRules" :open="showScore" :games="games" @close="onCloseScore" />
+  <Score
+    v-if="!showRules"
+    :open="showScore"
+    :games="games"
+    @close="onCloseScore"
+  />
 
-  <div class="panel">
+  <!-- <div class="panel">
     <p>Tries: {{ tries }}</p>
     <p>Letters found: {{ lettersFound }}</p>
-  </div>
+  </div> -->
 
   <div class="board">
     <div v-for="(row, index) in board" :key="'row-' + index" class="row">
-      <div v-for="(col, colIndex) in row" :key="'col-' + index" class="cell"
-        :class="[boardStatuses[index][colIndex], (index === currentWordRow && colIndex === currentLetterCol ? 'pulse-box' : '')]">
+      <div
+        v-for="(col, colIndex) in row"
+        :key="'col-' + index"
+        class="cell"
+        :class="[
+          boardStatuses[index][colIndex],
+          index === currentWordRow && colIndex === currentLetterCol
+            ? 'pulse-box'
+            : '',
+        ]"
+      >
         {{ col }}
       </div>
     </div>
   </div>
 
+  <Keyboard
+    :wrongLetters="wrongLettersUsed"
+    :includedLetters="includedLettersUsed"
+    :goodLetters="goodLettersUsed"
+    @letter="handleKeybordMouse"
+  />
+
   <!-- <p class="display">
     {{ outputMessage }}
   </p> -->
-
 </template>
 
 <style scoped>
@@ -315,5 +391,4 @@ function onOpenStats() {
     background-color: aliceblue;
   }
 }
-
 </style>

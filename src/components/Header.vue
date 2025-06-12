@@ -24,7 +24,7 @@ const emit = defineEmits<{
       Rules
     </button>
     <div>
-      <h1 style="margin: 0; font-size: 1.6rem">Wordle Game</h1>
+      <h1 style="margin: 0; font-size: 1.6rem">Wordle</h1>
       <!-- <p style="margin: 12px auto 24px">for romanian words</p> -->
     </div>
     <button @click.prevent="() => emit('openStats')">

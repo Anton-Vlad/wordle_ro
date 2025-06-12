@@ -22,6 +22,7 @@ function handleClose() {
 
     <section>
       <ul>
+        <li>The word to be guessed is a 5-letter romanian word.</li>
         <li>Each guess must be a valid 5-letter word.</li>
         <li>
           The color of the tiles will change to show how close your guess was to

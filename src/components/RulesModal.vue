@@ -17,7 +17,9 @@ function handleClose() {
 
 <template>
   <Modal :open="open" @close="handleClose">
-    <h2>How To Play</h2>
+    <template v-slot:header>
+      How To Play
+    </template>
     <p>Guess the Wordle in 6 tries.</p>
 
     <section>
@@ -61,11 +63,6 @@ function handleClose() {
 </template>
 
 <style scoped>
-h2 {
-  margin-top: 0;
-  margin-bottom: 4px;
-}
-
 p {
   margin: 0 0 24px;
 }

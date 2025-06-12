@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from "vue";
 import WORDS from "../words";
-import Rules from "./Rules.vue";
-import Score from "./Score.vue";
+import MessageModal from "./MessageModal.vue";
+import RulesModal from "./RulesModal.vue";
+import ScoreModal from "./ScoreModal.vue";
 import Header from "./Header.vue";
 import Keyboard from "./Keyboard.vue";
 import type { Game } from "../types";
@@ -24,6 +25,7 @@ const target = ref(getRandomWord());
 
 const showRules = ref(false);
 const showScore = ref(false);
+const showMessage = ref(false);
 
 const outputMessage = ref("");
 const tries = ref(0);
@@ -79,7 +81,13 @@ function saveResult(status: string) {
     tries: tries.value,
     letters: lettersFound.value,
   });
-  outputMessage.value = "You " + (status === "W" ? "Win" : "Lose");
+
+  if (status === "W") {
+    outputMessage.value = "You guessed the word!";
+  } else {
+    outputMessage.value = `You run out of guesses. The word was: ${target.value}`;
+  }
+  showMessage.value = true;
 }
 
 function resetBoard() {
@@ -95,10 +103,10 @@ function resetBoard() {
   target.value = getRandomWord();
 
   outputMessage.value = "";
+  showMessage.value = false;
+
   tries.value = 0;
   blockInputs.value = false;
-
-  console.log("NEW TARGET: ", target.value);
 }
 
 function getRandomWord() {
@@ -152,6 +160,7 @@ const handleKeydown = (
   const keyCode = event.keyCode || event.which;
 
   outputMessage.value = "";
+  showMessage.value = false;
 
   // Check if it's a valid key we want to listen for
   if (isValidKey(key, keyCode)) {
@@ -187,6 +196,14 @@ const handleKeydown = (
     }
 
     if (isSubmitKey(keyCode) && wordIsComplete.value) {
+      // check if the word is valid
+      const word = board.value[currentWordRow.value].join("");
+      if (!WORDS.includes(word.toLowerCase())) {
+        outputMessage.value = "Word is not valid.";
+        showMessage.value = true;
+        return;
+      }
+
       // check the word vs the target,  update the clases for the boardStatuses
       validateWordInput();
 
@@ -194,9 +211,6 @@ const handleKeydown = (
       wrongLettersUsed.value = [...getLettersUsedByType("wrongLetter")];
       includedLettersUsed.value = [...getLettersUsedByType("includedLetter")];
       goodLettersUsed.value = [...getLettersUsedByType("goodLetter")];
-      console.log("Wrong letters used: ", wrongLettersUsed.value);
-      console.log("Included letters used: ", includedLettersUsed.value);
-      console.log("Good letters used: ", goodLettersUsed.value);
 
       tries.value += 1;
 
@@ -224,19 +238,26 @@ const handleKeydown = (
 
     if (isSubmitKey(keyCode) && !wordIsComplete.value) {
       outputMessage.value = "Word is incomplet.";
+      showMessage.value = true;
       return;
     }
 
     if (wordIsComplete.value) {
-      outputMessage.value =
-        "Word is complet. Please submit it. (SPACE or ENTER key)";
+      // outputMessage.value =
+      //   "Word is complet. Please submit it. (SPACE or ENTER key)";
+      //   showMessage.value = true;
+      return;
     }
   }
 };
 
 onMounted(() => {
+  setTimeout(() => {
+    showRules.value = true;
+    showScore.value = false;
+  }, 1000);
+
   document.addEventListener("keydown", handleKeydown);
-  console.log("Target: " + target.value);
 });
 
 onUnmounted(() => {
@@ -251,11 +272,19 @@ function onCloseScore() {
   showScore.value = false;
 }
 
+function onCloseMessage() {
+  showMessage.value = false;
+}
+
 function onOpenRules() {
   showRules.value = true;
 }
 
 function onOpenStats() {
+  showScore.value = true;
+}
+
+function onOpenMessage() {
   showScore.value = true;
 }
 
@@ -274,8 +303,9 @@ function handleKeybordMouse(letter: string) {
 
 <template>
   <Header @openRules="onOpenRules" @openStats="onOpenStats" />
-  <Rules v-if="!showScore" :open="showRules" @close="onCloseRules" />
-  <Score
+  <MessageModal :message="outputMessage" :open="showMessage" @close="onCloseMessage" />
+  <RulesModal v-if="!showScore" :open="showRules" @close="onCloseRules" />
+  <ScoreModal
     v-if="!showRules"
     :open="showScore"
     :games="games"
@@ -311,10 +341,6 @@ function handleKeybordMouse(letter: string) {
     :goodLetters="goodLettersUsed"
     @letter="handleKeybordMouse"
   />
-
-  <!-- <p class="display">
-    {{ outputMessage }}
-  </p> -->
 </template>
 
 <style scoped>

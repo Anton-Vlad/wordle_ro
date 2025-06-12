@@ -150,7 +150,7 @@ function validateWordInput() {
 }
 
 const handleKeydown = (
-  event: KeyboardEvent | { key: string; keyCode: number }
+  event: KeyboardEvent | { key: string; keyCode: number; which?: number }
 ) => {
   if (blockInputs.value) {
     return;
@@ -163,7 +163,7 @@ const handleKeydown = (
   showMessage.value = false;
 
   // Check if it's a valid key we want to listen for
-  if (isValidKey(key, keyCode)) {
+  if (isValidKey(key, keyCode!)) {
     if (keyCode === 27) {
       showScore.value = false;
       setTimeout(() => {
@@ -180,7 +180,7 @@ const handleKeydown = (
       return;
     }
 
-    if (isDeleteKey(keyCode)) {
+    if (isDeleteKey(keyCode!)) {
       if (currentLetterCol.value > 0) {
         currentLetterCol.value -= 1;
       }
@@ -195,7 +195,7 @@ const handleKeydown = (
       return;
     }
 
-    if (isSubmitKey(keyCode) && wordIsComplete.value) {
+    if (isSubmitKey(keyCode!) && wordIsComplete.value) {
       // check if the word is valid
       const word = board.value[currentWordRow.value].join("");
       if (!WORDS.includes(word.toLowerCase())) {
@@ -236,7 +236,7 @@ const handleKeydown = (
       return;
     }
 
-    if (isSubmitKey(keyCode) && !wordIsComplete.value) {
+    if (isSubmitKey(keyCode!) && !wordIsComplete.value) {
       outputMessage.value = "Word is incomplet.";
       showMessage.value = true;
       return;
@@ -281,10 +281,6 @@ function onOpenRules() {
 }
 
 function onOpenStats() {
-  showScore.value = true;
-}
-
-function onOpenMessage() {
   showScore.value = true;
 }
 
@@ -339,7 +335,7 @@ function handleKeybordMouse(letter: string) {
     :wrongLetters="wrongLettersUsed"
     :includedLetters="includedLettersUsed"
     :goodLetters="goodLettersUsed"
-    @letter="handleKeybordMouse"
+    @letter="(l: string) => handleKeybordMouse(l)"
   />
 </template>
 

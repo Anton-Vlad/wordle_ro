@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Modal from "./Modal.vue";
 
-const props = defineProps<{
+defineProps<{
   open: boolean;
   message?: string;
 }>();

@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { ref } from "vue";
 
 const letters1 = ["Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P"];
 const letters2 = ["A", "S", "D", "F", "G", "H", "J", "K", "L"];
@@ -12,7 +11,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{
-  (e: "letter"): string;
+  (e: "letter", value: string): void;
 }>();
 
 function trigger(letter: string) {

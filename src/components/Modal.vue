@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-const dialog = ref(null);
+const dialog = ref<HTMLDialogElement | null>(null);
 
 const props = defineProps<{
   open: boolean;
@@ -12,20 +12,20 @@ const emit = defineEmits<{
 }>();
 
 function showDialog() {
-  dialog.value.show();
+  dialog.value?.show();
 }
 
 function closeDialog() {
-  dialog.value.close();
+  dialog.value?.close();
 }
 
-function handleClose(event) {
+function handleClose() {
   emit("close");
 }
 
 watch(
   () => props.open,
-  (newVal, oldVal) => {
+  (newVal) => {
     if (newVal) {
       showDialog();
     } else {

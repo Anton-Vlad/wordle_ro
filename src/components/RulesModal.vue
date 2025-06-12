@@ -88,7 +88,7 @@ section p:last-of-type {
   min-width: 40px;
   max-width: 40px;
   height: 40px;
-  background-color: aliceblue;
+  background-color: var(--aliceblue-bg);
   color: black;
   display: flex;
   justify-content: center;

@@ -65,7 +65,6 @@ h2 > button {
   border: none;
   padding: 4px;
   cursor: pointer;
-  --color-tone-1: white;
   outline: none !important;
 }
 
@@ -104,7 +103,7 @@ h2 > button > svg  path {
   text-align: left;
   width: 400px;
   border-radius: 10px;
-  background: black;
+  background: var(--panel-color);
   border: 2px solid #3498db;
 }
 

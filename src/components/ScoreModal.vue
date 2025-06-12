@@ -84,7 +84,7 @@ p {
   width: 100%;
 }
 .score-board thead tr th {
-  border-bottom: 1px solid aliceblue;
+  border-bottom: 1px solid var(--aliceblue-bg);
 }
 .score-board tbody tr td:last-child,
 .score-board thead tr th:last-child {

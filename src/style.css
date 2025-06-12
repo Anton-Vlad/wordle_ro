@@ -11,6 +11,11 @@
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  --text-color: white;
+  --panel-color: black;
+  --color-tone-1: white;
+  --aliceblue-bg: aliceblue;
 }
 
 a {
@@ -76,11 +81,17 @@ button:focus-visible {
   :root {
     color: #213547;
     background-color: #ffffff;
+
+    --text-color: black;
+    --panel-color: white;
+    --color-tone-1: black;
+    --aliceblue-bg: lightblue;
   }
   a:hover {
     color: #747bff;
   }
   button {
-    background-color: #f9f9f9;
+    background-color: #747bff;
+    color: white;
   }
 }

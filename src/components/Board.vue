@@ -370,7 +370,7 @@ function handleKeybordMouse(letter: string) {
   min-width: 64px;
   max-width: 64px;
   height: 64px;
-  background-color: aliceblue;
+  background-color: var(--aliceblue-bg);
   color: black;
   display: flex;
   justify-content: center;
@@ -402,7 +402,7 @@ function handleKeybordMouse(letter: string) {
 
 @keyframes pulse {
   0% {
-    background-color: aliceblue;
+    background-color: var(--aliceblue-bg);
   }
 
   50% {
@@ -410,7 +410,7 @@ function handleKeybordMouse(letter: string) {
   }
 
   100% {
-    background-color: aliceblue;
+    background-color: var(--aliceblue-bg);
   }
 }
 </style>
